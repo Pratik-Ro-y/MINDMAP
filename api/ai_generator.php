@@ -173,10 +173,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdf = $parser->parseFile($file['tmp_name']);
             $fileContent = $pdf->getText();
         } elseif (in_array($mime_type, $allowed_image_types)) {
-            // It's an image, use Tesseract OCR to extract text
-            $ocr = new \thiagoalessio\TesseractOCR\TesseractOCR($file['tmp_name']);
-            $fileContent = $ocr->run();
-        } else {
+    // It's an image — use OCR.space's hosted API (no local binary needed)
+    $ch = curl_init('https://api.ocr.space/parse/image');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, [
+        'apikey' => OCR_SPACE_API_KEY,
+        'file' => new CURLFile($file['tmp_name'], $mime_type, $file['name']),
+        'language' => 'eng',
+        'isOverlayRequired' => 'false',
+        'OCREngine' => '2'
+    ]);
+
+    $response = curl_exec($ch);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+
+    if ($curlError) {
+        throw new Exception('OCR request failed: ' . $curlError);
+    }
+
+    $result = json_decode($response, true);
+
+    if (!$result || !empty($result['IsErroredOnProcessing'])) {
+        $errMsg = $result['ErrorMessage'][0] ?? 'Unknown OCR error';
+        throw new Exception('OCR failed: ' . $errMsg);
+    }
+
+    $fileContent = $result['ParsedResults'][0]['ParsedText'] ?? '';
+
+    if (trim($fileContent) === '') {
+        throw new Exception('No text could be extracted from this image.');
+    }
+} else {
             // Unsupported file type
             throw new Exception('Unsupported file type: ' . $mime_type . '. Please upload a text file, PDF, or image.');
         }
