@@ -8,6 +8,8 @@ define('DB_USER', 'root');
 define('DB_PASS', ''); // Default XAMPP password is empty
 define('DB_NAME', 'mindmap_generator');
 
+define('OCR_SPACE_API_KEY', 'YOUR_ACTUAL_KEY_HERE'); // paste the key from the email
+
 // --- Application Configuration ---
 define('BASE_URL', 'http://localhost/projectMindmap/');
 
