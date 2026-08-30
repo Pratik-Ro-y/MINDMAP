@@ -3,13 +3,15 @@
 session_start();
 
 // --- Database Configuration ---
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', ''); // Default XAMPP password is empty
-define('DB_NAME', 'mindmap_generator');
+define('DB_HOST', 'sql101.infinityfree.com');
+define('DB_USER', 'if0_42765899');
+define('DB_PASS', 'Royal031105'); 
+define('DB_NAME', 'if0_42765899_mindmap_generator');
+
+define('OCR_SPACE_API_KEY', 'K83275485088957'); // paste the key from the email
 
 // --- Application Configuration ---
-define('BASE_URL', 'http://localhost/projectMindmap/');
+define('BASE_URL', 'http://mindmap.xo.je/');
 
 // --- Database Connection ---
 try {
